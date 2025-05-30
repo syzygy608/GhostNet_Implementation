@@ -1,0 +1,6 @@
+numpy
+tqdm
+Pillow
+torch==2.5.0
+albumentations
+tensorboard
