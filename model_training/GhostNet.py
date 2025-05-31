@@ -128,6 +128,7 @@ class GhostNet(nn.Module):
     def __init__(self, num_classes=10):
         super(GhostNet, self).__init__()
         self.num_classes = num_classes
+        print("Initializing GhostNet with {} classes".format(num_classes))
 
         # Initial convolution
         self.conv1 = nn.Conv2d(3, 16, kernel_size=3, stride=2, padding=1, bias=False)
@@ -171,27 +172,35 @@ class GhostNet(nn.Module):
         self.fc = nn.Linear(1280, num_classes)
 
     def forward(self, x):
-        # Initial convolution
+        def forward(self, x):
+        print(f"Input shape: {x.shape}")
         x = self.conv1(x)
         x = self.bn1(x)
         x = F.relu(x)
+        print(f"After conv1: {x.shape}")
 
-        # Ghost bottlenecks
-        for stage in self.stages:
+        for i, stage in enumerate(self.stages):
             x = stage(x)
+            print(f"After stage {i+1}: {x.shape}")
 
-        # Stage 5 convolution
         x = self.conv2(x)
         x = self.bn2(x)
         x = F.relu(x)
+        print(f"After conv2: {x.shape}")
 
-        # Final layers
         x = self.avgpool(x)
+        print(f"After avgpool: {x.shape}")
+
         x = self.conv3(x)
         x = self.bn3(x)
         x = F.relu(x)
-        x = x.view(x.size(0), -1)  # Flatten
+        print(f"After conv3: {x.shape}")
+
+        x = x.view(x.size(0), -1)
+        print(f"After view: {x.shape}")
+
         x = self.fc(x)
+        print(f"Output shape: {x.shape}")
 
         return x
     
