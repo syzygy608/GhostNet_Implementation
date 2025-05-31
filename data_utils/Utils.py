@@ -1,10 +1,5 @@
-import torch
-import torch.nn as nn
 import torchvision
-import matplotlib.pyplot as plt
 import torch.utils.data as Data
-from torch.autograd import Variable
-import os
 
 class CIFAR10Dataset(Data.Dataset):
     def __init__(self, root, train=True, transform=None):
@@ -25,17 +20,6 @@ class CIFAR10Dataset(Data.Dataset):
     @staticmethod
     def download(root):
         torchvision.datasets.CIFAR10(root=root, train=True, download=True)
-
-    @staticmethod
-    def show_sample_images(dataset, num_images=10):
-        plt.figure(figsize=(10, 10))
-        for i in range(num_images):
-            image, label = dataset[i]
-            plt.subplot(1, num_images, i + 1)
-            plt.imshow(image.permute(1, 2, 0).numpy())
-            plt.title(f'Label: {label}')
-            plt.axis('off')
-        plt.show()
 
 def get_cifar10_dataloader(root, train=True, batch_size=32, shuffle=True, num_workers=2):
     
@@ -58,7 +42,7 @@ def get_cifar10_dataloader(root, train=True, batch_size=32, shuffle=True, num_wo
     dataloader = Data.DataLoader(dataset, batch_size=batch_size, shuffle=shuffle, num_workers=num_workers)
     dataloader.dataset.download(root)  # Ensure dataset is downloaded if not already present
     print(f"CIFAR-10 {'train' if train else 'test'} dataset loaded with {len(dataset)} samples.")
-    
+
     return dataloader
 
 if __name__ == "__main__":
@@ -70,7 +54,4 @@ if __name__ == "__main__":
     ])
     
     dataset = CIFAR10Dataset(root=root, train=True, transform=transform)
-    
-    # Show sample images
-    CIFAR10Dataset.show_sample_images(dataset, num_images=10)
     
