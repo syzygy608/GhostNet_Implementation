@@ -53,3 +53,8 @@ python Main.py \
 [CIFAR10 Classifer Using VGG19](https://medium.com/@charlie910417/cifar10-classifer-using-vgg19-d948a4df6b20)
 
 [CIFAR-10 Normalization](https://github.com/kuangliu/pytorch-cifar/issues/19)
+
+## Dataset Citation
+
+This project uses the CIFAR-10 dataset, which includes 60,000 32x32 color images in 10 classes.  
+Citation: Krizhevsky, A. (2009). Learning Multiple Layers of Features from Tiny Images. Technical Report, University of Toronto. https://www.cs.toronto.edu/~kriz/learning-features-2009-TR.pdf
