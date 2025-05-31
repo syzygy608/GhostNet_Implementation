@@ -215,4 +215,4 @@ if __name__ == "__main__":
     x = torch.randn(1, 3, 224, 224)  # Batch size of 1, 3 channels, 224x224 image
     output = model(x)
     print(output.shape)  # Should be [1, num_classes]
-    assert output.shape == (1, 10), "Output shape mismatch
+    assert output.shape == (1, 10), "Output shape mismatch"
