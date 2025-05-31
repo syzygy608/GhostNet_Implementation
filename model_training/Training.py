@@ -11,11 +11,15 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from data_utils import Utils
 from model_training.GhostNet import GhostNet
+from model_training.GhostResNet56 import GhostResNet56
 
-def train_model(model, dataloader, criterion, optimizer, device, epochs):
+def train_model(model, dataloader, criterion, optimizer, device, epochs, name):
+
     model.train()
-    sw = SummaryWriter(log_dir=os.path.join("logs", "GhostNet_CIFAR10"))
+    sw = SummaryWriter(log_dir=os.path.join("logs", name + "_cifar10"))
     best_loss = float('inf')
+    total = 0
+    acc = 0
     for epoch in range(epochs):
         running_loss = 0.0
         for images, labels in tqdm.tqdm(dataloader, desc=f"Epoch {epoch+1}/{epochs}"):
@@ -23,9 +27,11 @@ def train_model(model, dataloader, criterion, optimizer, device, epochs):
 
             optimizer.zero_grad()
             outputs = model(images)
+            _, predicted = torch.max(outputs.data, 1)
+            total += labels.size(0)
+            acc += (predicted == labels).sum().item()
             loss = criterion(outputs, labels)
 
-            sw.add_scalar('Loss/train', loss.item(), epoch * len(dataloader) + len(images))
             if epoch % 10 == 0:
                 sw.add_images('Images', images, epoch * len(dataloader) + len(images))
             
@@ -36,12 +42,16 @@ def train_model(model, dataloader, criterion, optimizer, device, epochs):
 
         epoch_loss = running_loss / len(dataloader.dataset)
         print(f"Epoch {epoch+1}/{epochs}, Loss: {epoch_loss:.4f}")
+        print(f"Accuracy: {100 * acc / total:.2f}%")
         sw.add_scalar('Loss/epoch', epoch_loss, epoch)
+        sw.add_scalar('Accuracy/epoch', 100 * acc / total, epoch)
+        acc = 0
+        total = 0
 
         # Save the model if it has the best loss so far
         if epoch_loss < best_loss:
             best_loss = epoch_loss
-            torch.save(model.state_dict(), os.path.join("saved_weight", "ghostnet_cifar10_best.pth"))
+            torch.save(model.state_dict(), os.path.join("saved_weight", f"{name}_cifar10.pth"))
             print(f"Model saved with loss: {best_loss:.4f}")
 
 def init_weights(m):
@@ -62,6 +72,7 @@ def argument_parser():
     parser.add_argument("--batch_size", type=int, default=32, help="Batch size for training.")
     parser.add_argument("--epochs", type=int, default=10, help="Number of epochs to train.")
     parser.add_argument("--lr", type=float, default=0.0001, help="Learning rate for the optimizer.")
+    parser.add_argument("--model_name", type=str, default="GhostNet", help="Name of the model to save.")
     return parser.parse_args()
 
 def main():
@@ -71,17 +82,22 @@ def main():
     # Load CIFAR-10 dataset
     dataloader = Utils.get_cifar10_dataloader(args.root, train=True, batch_size=args.batch_size, shuffle=True)
 
-    # Initialize GhostNet model
-    model = GhostNet(num_classes=10).to(device)
+    if args.model_name == "GhostNet":
+        model = GhostNet(num_classes=10).to(device)
+    elif args.model_name == "GhostResNet56":
+        model = GhostResNet56(num_classes=10).to(device)
+    else:
+        raise ValueError("Invalid model name. Choose either 'GhostNet' or 'GhostResNet56'.")
 
     model.apply(init_weights)  # Initialize weights
 
     # Define loss function and optimizer
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=args.lr)
-
+    
+    name = args.model_name
     # Train the model
-    train_model(model, dataloader, criterion, optimizer, device, args.epochs)
+    train_model(model, dataloader, criterion, optimizer, device, args.epochs, name)
 
 if __name__ == "__main__":
     main()
