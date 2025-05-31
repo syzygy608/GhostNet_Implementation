@@ -17,7 +17,7 @@ def train_model(model, dataloader, criterion, optimizer, scheduler, device, epoc
 
     model.train()
     sw = SummaryWriter(log_dir=os.path.join("logs", name + "_cifar10"))
-    best_loss = float('inf')
+    best_acc = 0.0
     total = 0
     acc = 0
     for epoch in range(epochs):
@@ -50,11 +50,11 @@ def train_model(model, dataloader, criterion, optimizer, scheduler, device, epoc
         acc = 0
         total = 0
 
-        # Save the model if it has the best loss so far
-        if epoch_loss < best_loss:
-            best_loss = epoch_loss
+        # Save the model if it has the best accuracy so far
+        if 100 * acc / total > best_acc:
+            best_acc = 100 * acc / total
             torch.save(model.state_dict(), os.path.join("saved_weight", f"{name}_cifar10.pth"))
-            print(f"Model saved with loss: {best_loss:.4f}")
+            print(f"Model saved with accuracy: {best_acc:.2f}%")
 
 def init_weights(m):
     if isinstance(m, nn.Conv2d):
