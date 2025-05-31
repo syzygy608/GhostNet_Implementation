@@ -40,7 +40,7 @@ def train_model(model, dataloader, criterion, optimizer, scheduler, device, epoc
             optimizer.step()
             scheduler.step()
 
-            running_loss += loss.item()
+            running_loss += loss.item() * images.size(0)
 
         epoch_loss = running_loss / len(dataloader.dataset)
         print(f"Epoch {epoch+1}/{epochs}, Loss: {epoch_loss:.4f}")
