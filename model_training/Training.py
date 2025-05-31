@@ -13,7 +13,7 @@ from data_utils import Utils
 from model_training.GhostNet import GhostNet
 from model_training.GhostResNet56 import GhostResNet56
 
-def train_model(model, dataloader, criterion, optimizer, device, epochs, name):
+def train_model(model, dataloader, criterion, optimizer, scheduler, device, epochs, name):
 
     model.train()
     sw = SummaryWriter(log_dir=os.path.join("logs", name + "_cifar10"))
@@ -26,6 +26,7 @@ def train_model(model, dataloader, criterion, optimizer, device, epochs, name):
             images, labels = images.to(device), labels.to(device)
 
             optimizer.zero_grad()
+
             outputs = model(images)
             _, predicted = torch.max(outputs.data, 1)
             total += labels.size(0)
@@ -37,6 +38,7 @@ def train_model(model, dataloader, criterion, optimizer, device, epochs, name):
             
             loss.backward()
             optimizer.step()
+            scheduler.step()
 
             running_loss += loss.item()
 
@@ -69,9 +71,9 @@ def init_weights(m):
 def argument_parser():
     parser = argparse.ArgumentParser(description="Train a GhostNet model on CIFAR-10 dataset.")
     parser.add_argument("--root", type=str, default="./dataset", help="Root directory for the dataset.")
-    parser.add_argument("--batch_size", type=int, default=64, help="Batch size for training.")
-    parser.add_argument("--epochs", type=int, default=30, help="Number of epochs to train.")
-    parser.add_argument("--lr", type=float, default=1e-4, help="Learning rate for the optimizer.")
+    parser.add_argument("--batch_size", type=int, default=256, help="Batch size for training.")
+    parser.add_argument("--epochs", type=int, default=200, help="Number of epochs to train.")
+    parser.add_argument("--lr", type=float, default=0.1, help="Learning rate for the optimizer.")
     parser.add_argument("--model_name", type=str, default="GhostResNet56", help="Name of the model to save.")
     parser.add_argument("--weight_decay", type=float, default=1e-4, help="Weight decay for the optimizer.")
     return parser.parse_args()
@@ -94,11 +96,12 @@ def main():
 
     # Define loss function and optimizer
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
+    optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=0.9, weight_decay=args.weight_decay)
+    scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=[100, 150], gamma=0.1)
     
     name = args.model_name
     # Train the model
-    train_model(model, dataloader, criterion, optimizer, device, args.epochs, name)
+    train_model(model, dataloader, criterion, optimizer, scheduler, device, args.epochs, name)
 
 if __name__ == "__main__":
     main()
