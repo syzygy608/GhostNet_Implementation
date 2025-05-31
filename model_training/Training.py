@@ -1,10 +1,14 @@
-from ..data_utils import Utils
-from .GhostNet import GhostNet
+import os
+import sys
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from data_utils import Utils
+from model_training.GhostNet import GhostNet
 import torch
 import torch.nn as nn
 import torch.optim as optim
 import tqdm
-import os
 import argparse
 import tensorboard as tb
 
