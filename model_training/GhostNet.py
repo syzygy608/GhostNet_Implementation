@@ -203,16 +203,12 @@ class GhostNet(nn.Module):
         return x
     
 if __name__ == "__main__":
-    model = GhostNet(num_classes=10)
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model = GhostNet(num_classes=10).to(device)
     print(model)
-    model.eval()  # Set the model to evaluation mode
-    # Check if CUDA is available and move the model to GPU if possible
-    if torch.cuda.is_available():
-        model = model.cuda()
-    else:
-        print("CUDA is not available, running on CPU.")
+    model.eval()   
     # Test with a random input
     x = torch.randn(1, 3, 224, 224)  # Batch size of 1, 3 channels, 224x224 image
-    output = model(x)
+    output = model(x.to(device))
     print(output.shape)  # Should be [1, num_classes]
     assert output.shape == (1, 10), "Output shape mismatch"
