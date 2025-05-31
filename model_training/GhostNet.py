@@ -172,7 +172,6 @@ class GhostNet(nn.Module):
         self.fc = nn.Linear(1280, num_classes)
 
     def forward(self, x):
-        def forward(self, x):
         print(f"Input shape: {x.shape}")
         x = self.conv1(x)
         x = self.bn1(x)
