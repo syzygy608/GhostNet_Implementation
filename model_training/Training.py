@@ -47,14 +47,15 @@ def train_model(model, dataloader, criterion, optimizer, scheduler, device, epoc
         print(f"Accuracy: {100 * acc / total:.2f}%")
         sw.add_scalar('Loss/epoch', epoch_loss, epoch)
         sw.add_scalar('Accuracy/epoch', 100 * acc / total, epoch)
-        acc = 0
-        total = 0
 
         # Save the model if it has the best accuracy so far
         if 100 * acc / total > best_acc:
             best_acc = 100 * acc / total
             torch.save(model.state_dict(), os.path.join("saved_weight", f"{name}_cifar10.pth"))
             print(f"Model saved with accuracy: {best_acc:.2f}%")
+
+        acc = 0
+        total = 0
 
 def init_weights(m):
     if isinstance(m, nn.Conv2d):
