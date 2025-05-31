@@ -28,12 +28,12 @@ def get_cifar10_dataloader(root, train=True, batch_size=32, shuffle=True, num_wo
             torchvision.transforms.RandomHorizontalFlip(),
             torchvision.transforms.RandomCrop(32, padding=4),
             torchvision.transforms.ToTensor(),
-            torchvision.transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+            torchvision.transforms.Normalize((0.4914, 0.4822, 0.4465), (0.247, 0.243, 0.261))
         ])
     else:
         transform = torchvision.transforms.Compose([
             torchvision.transforms.ToTensor(),
-            torchvision.transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+            torchvision.transforms.Normalize((0.4914, 0.4822, 0.4465), (0.247, 0.243, 0.261))
         ])
 
     dataset = CIFAR10Dataset(root=root, train=train, transform=transform)
@@ -53,3 +53,4 @@ if __name__ == "__main__":
     
     dataset = CIFAR10Dataset(root=root, train=True, transform=transform)
     
+# normalize parmeters from https://github.com/kuangliu/pytorch-cifar/issues/19
