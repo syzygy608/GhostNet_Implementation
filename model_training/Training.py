@@ -73,6 +73,7 @@ def argument_parser():
     parser.add_argument("--epochs", type=int, default=30, help="Number of epochs to train.")
     parser.add_argument("--lr", type=float, default=1e-4, help="Learning rate for the optimizer.")
     parser.add_argument("--model_name", type=str, default="GhostResNet56", help="Name of the model to save.")
+    parser.add_argument("--weight_decay", type=float, default=1e-4, help="Weight decay for the optimizer.")
     return parser.parse_args()
 
 def main():
@@ -93,7 +94,7 @@ def main():
 
     # Define loss function and optimizer
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(model.parameters(), lr=args.lr)
+    optimizer = optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
     
     name = args.model_name
     # Train the model
