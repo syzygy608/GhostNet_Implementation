@@ -49,7 +49,7 @@ def test_saved_model(model_name):
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Test GhostNet model on CIFAR-10 dataset.")
-    parser.add_argument("--model_name", type=str, default="GhostNet", help="Name of the model to test.")
+    parser.add_argument("--model_name", type=str, default="GhostResNet56", help="Name of the model to test.")
     return parser.parse_args()
 
 if __name__ == "__main__":

@@ -69,10 +69,10 @@ def init_weights(m):
 def argument_parser():
     parser = argparse.ArgumentParser(description="Train a GhostNet model on CIFAR-10 dataset.")
     parser.add_argument("--root", type=str, default="./dataset", help="Root directory for the dataset.")
-    parser.add_argument("--batch_size", type=int, default=32, help="Batch size for training.")
-    parser.add_argument("--epochs", type=int, default=10, help="Number of epochs to train.")
-    parser.add_argument("--lr", type=float, default=0.0001, help="Learning rate for the optimizer.")
-    parser.add_argument("--model_name", type=str, default="GhostNet", help="Name of the model to save.")
+    parser.add_argument("--batch_size", type=int, default=64, help="Batch size for training.")
+    parser.add_argument("--epochs", type=int, default=30, help="Number of epochs to train.")
+    parser.add_argument("--lr", type=float, default=1e-4, help="Learning rate for the optimizer.")
+    parser.add_argument("--model_name", type=str, default="GhostResNet56", help="Name of the model to save.")
     return parser.parse_args()
 
 def main():
