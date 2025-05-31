@@ -44,6 +44,16 @@ def train_model(model, dataloader, criterion, optimizer, device, epochs):
             torch.save(model.state_dict(), os.path.join("saved_weight", "ghostnet_cifar10_best.pth"))
             print(f"Model saved with loss: {best_loss:.4f}")
 
+def init_weights(m):
+    if isinstance(m, nn.Conv2d):
+        nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')
+    elif isinstance(m, nn.BatchNorm2d):
+        nn.init.constant_(m.weight, 1)
+        nn.init.constant_(m.bias, 0)
+    elif isinstance(m, nn.Linear):
+        nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')
+        nn.init.constant_(m.bias, 0)
+
 def argument_parser():
     parser = argparse.ArgumentParser(description="Train a GhostNet model on CIFAR-10 dataset.")
     parser.add_argument("--root", type=str, default="./dataset", help="Root directory for the dataset.")
@@ -61,6 +71,8 @@ def main():
 
     # Initialize GhostNet model
     model = GhostNet(num_classes=10).to(device)
+
+    model.apply(init_weights)  # Initialize weights
 
     # Define loss function and optimizer
     criterion = nn.CrossEntropyLoss()
