@@ -29,7 +29,7 @@ class GhostModule(nn.Module):
 
         # SE block (if enabled)
         if use_se:
-            self.se_block = SEBlock(intrinsic_channels)
+            self.se_block = SEBlock(out_channels)
 
     def forward(self, x):
         # Primary convolution
@@ -66,31 +66,30 @@ class SEBlock(nn.Module):
         return x * y.expand_as(x) # 做 scale
     
 class GhostBottleneck(nn.Module):
-    def __init__(self, in_channels, out_channels, kernel_size=1, stride=1, use_se=False):
+    def __init__(self, in_channels, out_channels, expansion, kernel_size=3, stride=1, use_se=False):
         super(GhostBottleneck, self).__init__()
         self.in_channels = in_channels
         self.out_channels = out_channels
+        self.expansion = expansion
         self.kernel_size = kernel_size
         self.stride = stride
         self.use_se = use_se
 
         # First GhostModule (expansion)
-        self.ghost1 = GhostModule(in_channels, out_channels, kernel_size=1, stride=1, use_se=use_se)
-
-        # BatchNorm and ReLU
-        self.bn1 = nn.BatchNorm2d(out_channels)
+        self.ghost1 = GhostModule(in_channels, expansion, kernel_size=1, stride=1, use_se=use_se)
+        self.bn1 = nn.BatchNorm2d(expansion)
         
         # Depthwise convolution for stride=2
-        self.depthwise = nn.Identity()  # No-op if stride=1
+        self.depthwise = nn.Identity()
         if stride == 2:
             self.depthwise = nn.Conv2d(
-                out_channels, out_channels, kernel_size=3, stride=2,
-                padding=1, groups=out_channels, bias=False
+                expansion, expansion, kernel_size=3, stride=2,
+                padding=1, groups=expansion, bias=False
             )
-            self.bn_depthwise = nn.BatchNorm2d(out_channels)
+            self.bn_depthwise = nn.BatchNorm2d(expansion)
 
         # Second GhostModule (projection)
-        self.ghost2 = GhostModule(out_channels, out_channels, kernel_size=1, stride=1, use_se=use_se)
+        self.ghost2 = GhostModule(expansion, out_channels, kernel_size=1, stride=1, use_se=use_se)
         self.bn2 = nn.BatchNorm2d(out_channels)
 
         # Shortcut path
@@ -158,7 +157,7 @@ class GhostNet(nn.Module):
         self.stages = nn.ModuleList()
         for in_channels, out_channels, expansion, stride, use_se in self.configs:
             self.stages.append(
-                GhostBottleneck(in_channels, out_channels, kernel_size=3, stride=stride, use_se=use_se)
+                GhostBottleneck(in_channels, out_channels, expansion, kernel_size=3, stride=stride, use_se=use_se)
             )
 
         # Stage 5 convolution
@@ -203,4 +202,5 @@ if __name__ == "__main__":
     # Test with a random input
     x = torch.randn(1, 3, 224, 224)  # Batch size of 1, 3 channels, 224x224 image
     output = model(x)
-    print(output.shape)  # Should be [1, 1000] for num_classes=1000
+    print(output.shape)  # Should be [1, num_classes]
+    assert output.shape == (1, 10), "Output shape mismatch"
