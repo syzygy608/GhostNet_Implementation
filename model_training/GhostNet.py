@@ -175,30 +175,23 @@ class GhostNet(nn.Module):
         x = self.conv1(x)
         x = self.bn1(x)
         x = F.relu(x)
-        print(f"After conv1: {x.shape}")
 
         for i, stage in enumerate(self.stages):
             x = stage(x)
-            print(f"After stage {i+1}: {x.shape}")
 
         x = self.conv2(x)
         x = self.bn2(x)
         x = F.relu(x)
-        print(f"After conv2: {x.shape}")
 
         x = self.avgpool(x)
-        print(f"After avgpool: {x.shape}")
 
         x = self.conv3(x)
         x = self.bn3(x)
         x = F.relu(x)
-        print(f"After conv3: {x.shape}")
 
         x = x.view(x.size(0), -1)
-        print(f"After view: {x.shape}")
 
         x = self.fc(x)
-        print(f"Output shape: {x.shape}")
 
         return x
     
@@ -210,5 +203,4 @@ if __name__ == "__main__":
     # Test with a random input
     x = torch.randn(1, 3, 224, 224)  # Batch size of 1, 3 channels, 224x224 image
     output = model(x.to(device))
-    print(output.shape)  # Should be [1, num_classes]
     assert output.shape == (1, 10), "Output shape mismatch"

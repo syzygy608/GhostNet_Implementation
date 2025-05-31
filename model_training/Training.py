@@ -47,13 +47,15 @@ def train_model(model, dataloader, criterion, optimizer, device, epochs):
 def init_weights(m):
     if isinstance(m, nn.Conv2d):
         nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')
+        if m.bias is not None:
+            nn.init.constant_(m.bias, 0)
     elif isinstance(m, nn.BatchNorm2d):
         nn.init.constant_(m.weight, 1)
         nn.init.constant_(m.bias, 0)
     elif isinstance(m, nn.Linear):
         nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')
-        nn.init.constant_(m.bias, 0)
-
+        if m.bias is not None:
+            nn.init.constant_(m.bias, 0)
 def argument_parser():
     parser = argparse.ArgumentParser(description="Train a GhostNet model on CIFAR-10 dataset.")
     parser.add_argument("--root", type=str, default="./dataset", help="Root directory for the dataset.")
