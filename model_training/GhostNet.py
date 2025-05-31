@@ -51,16 +51,19 @@ class SEBlock(nn.Module):
     # Squeeze-and-Excitation Block
     def __init__(self, channels, reduction=16):
         super(SEBlock, self).__init__()
-        self.avg_pool = nn.AdaptiveAvgPool2d(1)
-        self.fc1 = nn.Linear(channels, channels // reduction, bias=False)
-        self.fc2 = nn.Linear(channels // reduction, channels, bias=False)
+        self.avg_pool = nn.AdaptiveAvgPool2d(1) # 進行 squeeze
+        self.fc = nn.Sequential( # 進行 excitation
+            nn.Linear(channels, channels // reduction, bias=False),
+            nn.ReLU(inplace=True),
+            nn.Linear(channels // reduction, channels, bias=False),
+            nn.Sigmoid()
+        )
 
     def forward(self, x):
         b, c, _, _ = x.size()
         y = self.avg_pool(x).view(b, c)
-        y = F.relu(self.fc1(y))
-        y = torch.sigmoid(self.fc2(y)).view(b, c, 1, 1)
-        return x * y
+        y = self.fc(y).view(b, c, 1, 1)
+        return x * y.expand_as(x) # 做 scale
     
 class GhostBottleneck(nn.Module):
     def __init__(self, in_channels, out_channels, kernel_size=1, stride=1, use_se=False):

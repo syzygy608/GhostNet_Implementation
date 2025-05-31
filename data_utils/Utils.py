@@ -45,7 +45,7 @@ def get_cifar10_dataloader(root, train=True, batch_size=32, shuffle=True, num_wo
 
 if __name__ == "__main__":
     # Example usage
-    root = './data'
+    root = './dataset'
     transform = torchvision.transforms.Compose([
         torchvision.transforms.ToTensor(),
         torchvision.transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
