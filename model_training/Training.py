@@ -1,20 +1,20 @@
 import os
 import sys
-
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-from data_utils import Utils
-from model_training.GhostNet import GhostNet
 import torch
 import torch.nn as nn
 import torch.optim as optim
 import tqdm
 import argparse
-import tensorboard as tb
+from torch.utils.tensorboard import SummaryWriter
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from data_utils import Utils
+from model_training.GhostNet import GhostNet
 
 def train_model(model, dataloader, criterion, optimizer, device, epochs):
     model.train()
-    sw = tb.SummaryWriter(log_dir=os.path.join("logs", "GhostNet_CIFAR10"))
+    sw = SummaryWriter(log_dir=os.path.join("logs", "GhostNet_CIFAR10"))
     best_loss = float('inf')
     for epoch in range(epochs):
         running_loss = 0.0
