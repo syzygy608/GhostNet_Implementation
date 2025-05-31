@@ -32,7 +32,7 @@ def train_model(model, dataloader, criterion, optimizer, device, epochs):
             loss.backward()
             optimizer.step()
 
-            running_loss += loss.item() * images.size(0)
+            running_loss += loss.item()
 
         epoch_loss = running_loss / len(dataloader.dataset)
         print(f"Epoch {epoch+1}/{epochs}, Loss: {epoch_loss:.4f}")
