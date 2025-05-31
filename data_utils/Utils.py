@@ -13,8 +13,6 @@ class CIFAR10Dataset(Data.Dataset):
 
     def __getitem__(self, index):
         image, label = self.data[index]
-        if self.transform:
-            image = self.transform(image)
         return image, label
 
     @staticmethod
