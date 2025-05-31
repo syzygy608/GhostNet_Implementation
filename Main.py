@@ -6,6 +6,7 @@ from model_training.GhostResNet56 import GhostResNet56
 from data_utils import Utils
 import tqdm
 import argparse
+import torch.nn as nn
 
 # testing saved model weight
 
@@ -35,15 +36,21 @@ def test_saved_model(model_name):
 
     correct = 0
     total = 0
+    criterion = nn.CrossEntropyLoss()
+
+    loss = 0
 
     with torch.no_grad():
         for images, labels in tqdm.tqdm(data_loader, desc="Testing"):
             images, labels = images.to(device), labels.to(device)
             outputs = model(images)
+            loss += criterion(outputs, labels).item()
             _, predicted = torch.max(outputs.data, 1)
             total += labels.size(0)
             correct += (predicted == labels).sum().item()
 
+    loss /= len(data_loader)
+    print(f"Test Loss: {loss:.4f}")
     accuracy = 100 * correct / total
     print(f"Accuracy of the model on the test dataset: {accuracy:.2f}%")
 
