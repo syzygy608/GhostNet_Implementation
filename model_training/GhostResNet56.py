@@ -16,7 +16,7 @@ class GhostResNetBlock(nn.Module):
         self.bn1 = nn.BatchNorm2d(expansion)
         self.ghost2 = GhostModule(expansion, out_channels, kernel_size=3, stride=stride, use_se=use_se)
         self.bn2 = nn.BatchNorm2d(out_channels)
-        # 殞地連接
+        # shortcut 路徑
         self.shortcut = nn.Identity()
         if stride != 1 or in_channels != out_channels:
             self.shortcut = nn.Sequential(
@@ -43,9 +43,9 @@ class GhostResNet56(nn.Module):
         self.bn1 = nn.BatchNorm2d(16)
 
         # 三個階段，每個階段 9 個 GhostResNetBlock
-        self.stage1 = self._make_layer(16, 16, 32, 1, 9, use_se=False)  # 16 通道
-        self.stage2 = self._make_layer(16, 32, 64, 2, 9, use_se=True)  # 32 通道
-        self.stage3 = self._make_layer(32, 64, 128, 2, 9, use_se=True)  # 64 通道
+        self.stage1 = self._make_layer(16, 16, 16, 1, 9, use_se=False)  # 16 通道
+        self.stage2 = self._make_layer(16, 32, 32, 2, 9, use_se=True)  # 32 通道
+        self.stage3 = self._make_layer(32, 64, 64, 2, 9, use_se=True)  # 64 通道
 
         # 全局平均池化
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
