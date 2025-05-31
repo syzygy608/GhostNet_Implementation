@@ -128,7 +128,6 @@ class GhostNet(nn.Module):
     def __init__(self, num_classes=10):
         super(GhostNet, self).__init__()
         self.num_classes = num_classes
-        print("Initializing GhostNet with {} classes".format(num_classes))
 
         # Initial convolution
         self.conv1 = nn.Conv2d(3, 16, kernel_size=3, stride=2, padding=1, bias=False)
@@ -206,9 +205,14 @@ class GhostNet(nn.Module):
 if __name__ == "__main__":
     model = GhostNet(num_classes=10)
     print(model)
-
+    model.eval()  # Set the model to evaluation mode
+    # Check if CUDA is available and move the model to GPU if possible
+    if torch.cuda.is_available():
+        model = model.cuda()
+    else:
+        print("CUDA is not available, running on CPU.")
     # Test with a random input
     x = torch.randn(1, 3, 224, 224)  # Batch size of 1, 3 channels, 224x224 image
     output = model(x)
     print(output.shape)  # Should be [1, num_classes]
-    assert output.shape == (1, 10), "Output shape mismatch"
+    assert output.shape == (1, 10), "Output shape mismatch
