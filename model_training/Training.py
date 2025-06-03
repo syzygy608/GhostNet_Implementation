@@ -53,6 +53,11 @@ def train_model(model, dataloader, criterion, optimizer, scheduler, device, epoc
             print(f"Model saved with accuracy: {best_acc:.2f}%")
 
 
+        # Step the learning rate scheduler
+        scheduler.step()
+
+    sw.close()
+
 def init_weights(m):
     if isinstance(m, nn.Conv2d):
         nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')
