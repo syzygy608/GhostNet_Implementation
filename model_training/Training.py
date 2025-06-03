@@ -14,19 +14,18 @@ from model_training.GhostNet import GhostNet
 from model_training.GhostResNet56 import GhostResNet56
 
 def train_model(model, dataloader, criterion, optimizer, scheduler, device, epochs, name):
-
     model.train()
     sw = SummaryWriter(log_dir=os.path.join("logs", name + "_cifar10"))
     best_acc = 0.0
-    total = 0
-    acc = 0
+
     for epoch in range(epochs):
         running_loss = 0.0
+        acc = 0
+        total = 0
         for images, labels in tqdm.tqdm(dataloader, desc=f"Epoch {epoch+1}/{epochs}"):
             images, labels = images.to(device), labels.to(device)
 
             optimizer.zero_grad()
-
             outputs = model(images)
             _, predicted = torch.max(outputs.data, 1)
             total += labels.size(0)
@@ -34,28 +33,25 @@ def train_model(model, dataloader, criterion, optimizer, scheduler, device, epoc
             loss = criterion(outputs, labels)
 
             if epoch % 10 == 0:
-                sw.add_images('Images', images, epoch * len(dataloader) + len(images))
-            
+                sw.add_images('Images', images, epoch)
+
             loss.backward()
             optimizer.step()
-            scheduler.step()
 
             running_loss += loss.item() * images.size(0)
 
         epoch_loss = running_loss / len(dataloader.dataset)
-        print(f"Epoch {epoch+1}/{epochs}, Loss: {epoch_loss:.4f}")
-        print(f"Accuracy: {100 * acc / total:.2f}%")
+        epoch_acc = 100 * acc / total
+        print(f"Epoch {epoch+1}/{epochs}, Loss: {epoch_loss:.4f}, Accuracy: {epoch_acc:.2f}%")
         sw.add_scalar('Loss/epoch', epoch_loss, epoch)
-        sw.add_scalar('Accuracy/epoch', 100 * acc / total, epoch)
+        sw.add_scalar('Accuracy/epoch', epoch_acc, epoch)
 
         # Save the model if it has the best accuracy so far
-        if 100 * acc / total > best_acc:
-            best_acc = 100 * acc / total
+        if epoch_acc > best_acc:
+            best_acc = epoch_acc
             torch.save(model.state_dict(), os.path.join("saved_weight", f"{name}_cifar10.pth"))
             print(f"Model saved with accuracy: {best_acc:.2f}%")
 
-        acc = 0
-        total = 0
 
 def init_weights(m):
     if isinstance(m, nn.Conv2d):

@@ -25,8 +25,8 @@ def get_cifar10_dataloader(root, train=True, batch_size=32, shuffle=True, num_wo
 
     if train:
         transform = torchvision.transforms.Compose([
-            torchvision.transforms.RandomHorizontalFlip(),
             torchvision.transforms.RandomCrop(32, padding=4),
+            torchvision.transforms.RandomHorizontalFlip(),
             torchvision.transforms.ToTensor(),
             torchvision.transforms.Normalize((0.4914, 0.4822, 0.4465), (0.247, 0.243, 0.261))
         ])
