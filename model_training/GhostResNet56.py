@@ -50,6 +50,7 @@ class GhostResNet56(nn.Module):
         # 全局平均池化
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
         self.fc = nn.Linear(64, num_classes)
+        self.softmax = nn.Softmax(dim=1)
 
     def _make_layer(self, in_channels, out_channels, expansion, stride, num_blocks, use_se):
         layers = []
@@ -68,6 +69,7 @@ class GhostResNet56(nn.Module):
         x = self.avgpool(x)
         x = x.view(x.size(0), -1)
         x = self.fc(x)
+        x = self.softmax(x)
         return x
 
 def init_weights(m):
