@@ -112,12 +112,10 @@ class GhostBottleneck(nn.Module):
         x = self.depthwise(x)
         if self.stride == 2:
             x = self.bn_depthwise(x)
-            x = F.relu(x)
 
         # Second GhostModule
         x = self.ghost2(x)
         x = self.bn2(x)
-
         # Residual connection
         x = x + residual
         x = F.relu(x)

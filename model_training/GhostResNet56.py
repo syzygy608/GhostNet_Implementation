@@ -6,34 +6,7 @@ import torch.nn.functional as F
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from model_training.GhostNet import GhostModule
-
-class GhostResNetBlock(nn.Module):
-    def __init__(self, in_channels, out_channels, expansion, stride=1, use_se=False):
-        super(GhostResNetBlock, self).__init__()
-        # 使用 GhostModule 替代標準卷積
-        self.ghost1 = GhostModule(in_channels, expansion, kernel_size=1, stride=1, use_se=use_se)
-        self.bn1 = nn.BatchNorm2d(expansion)
-        self.ghost2 = GhostModule(expansion, out_channels, kernel_size=3, stride=stride, use_se=use_se)
-        self.bn2 = nn.BatchNorm2d(out_channels)
-        # shortcut 路徑
-        self.shortcut = nn.Identity()
-        if stride != 1 or in_channels != out_channels:
-            self.shortcut = nn.Sequential(
-                nn.Conv2d(in_channels, out_channels, kernel_size=1, stride=stride, bias=False),
-                nn.BatchNorm2d(out_channels)
-            )
-
-    def forward(self, x):
-        residual = self.shortcut(x)
-        x = self.ghost1(x)
-        x = self.bn1(x)
-        x = F.relu(x)
-        x = self.ghost2(x)
-        x = self.bn2(x)
-        x = x + residual
-        x = F.relu(x)
-        return x
+from model_training.GhostNet import GhostBottleneck
 
 class GhostResNet56(nn.Module):
     def __init__(self, num_classes=10):
@@ -42,21 +15,23 @@ class GhostResNet56(nn.Module):
         self.conv1 = nn.Conv2d(3, 16, kernel_size=3, stride=1, padding=1, bias=False)
         self.bn1 = nn.BatchNorm2d(16)
 
-        # 三個階段，每個階段 9 個 GhostResNetBlock
+        # 三個階段，每個階段 9 個 GhostBottleneck
+        # 第一個階段：16 通道，9 個 GhostBottleneck，步幅為 1
         self.stage1 = self._make_layer(16, 16, 16, 1, 9, use_se=False)  # 16 通道
+        # 第二個階段：16 通道到 32 通道，9 個 GhostBottleneck，第一個步幅為 2
         self.stage2 = self._make_layer(16, 32, 32, 2, 9, use_se=True)  # 32 通道
+        # 第三個階段：32 通道到 64 通道，9 個 GhostBottleneck，第一個步幅為 2
         self.stage3 = self._make_layer(32, 64, 64, 2, 9, use_se=True)  # 64 通道
 
         # 全局平均池化
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
         self.fc = nn.Linear(64, num_classes)
-        self.softmax = nn.Softmax(dim=1)
 
     def _make_layer(self, in_channels, out_channels, expansion, stride, num_blocks, use_se):
         layers = []
-        layers.append(GhostResNetBlock(in_channels, out_channels, expansion, stride, use_se))
+        layers.append(GhostBottleneck(in_channels, out_channels, expansion, kernel_size=3, stride=stride, use_se=use_se))
         for _ in range(1, num_blocks):
-            layers.append(GhostResNetBlock(out_channels, out_channels, expansion, 1, use_se))
+            layers.append(GhostBottleneck(out_channels, out_channels, expansion, kernel_size=3, stride=1, use_se=use_se))
         return nn.Sequential(*layers)
 
     def forward(self, x):
@@ -69,7 +44,6 @@ class GhostResNet56(nn.Module):
         x = self.avgpool(x)
         x = x.view(x.size(0), -1)
         x = self.fc(x)
-        x = self.softmax(x)
         return x
 
 def init_weights(m):
