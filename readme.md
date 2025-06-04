@@ -28,11 +28,7 @@ To train the GhostNet model, you can use the provided training script. Make sure
 
 ```bash
 python model_training/Training.py \
-    --model_name GhostResNet56 or GhostNet
-    --batch_size 256 \
-    --epochs 200 \
-    --learning_rate 0.1 \
-    --weight_decay 1e-4
+    --model_name GhostResNet56 | GhostNet | GhostVGG16
 ```
 
 ## Inference
@@ -41,7 +37,7 @@ To perform inference using the trained GhostNet model, you can use the following
 
 ```bash
 python Main.py \
-    --model_name GhostResNet56 or GhostNet
+    --model_name GhostResNet56 | GhostNet | GhostVGG16
 ```
 
 ## References

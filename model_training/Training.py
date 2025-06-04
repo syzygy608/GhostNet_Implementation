@@ -12,6 +12,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from data_utils import Utils
 from model_training.GhostNet import GhostNet
 from model_training.GhostResNet56 import GhostResNet56
+from model_training.GhostVGG16 import GhostVGG16
 
 def train_model(model, dataloader, criterion, optimizer, scheduler, device, epochs, name):
     model.train()
@@ -99,8 +100,11 @@ def main():
         model = GhostNet(num_classes=10).to(device)
     elif args.model_name == "GhostResNet56":
         model = GhostResNet56(num_classes=10).to(device)
+    elif args.model_name == "GhostVGG16":
+        model = GhostVGG16(num_classes=10).to(device)
     else:
-        raise ValueError("Invalid model name. Choose either 'GhostNet' or 'GhostResNet56'.")
+        raise ValueError("Invalid model name. Choose either 'GhostNet', 'GhostResNet56', or 'GhostVGG16'.")
+    print(f"Training model: {args.model_name} on device: {device}")
 
     model.apply(init_weights)  # Initialize weights
 

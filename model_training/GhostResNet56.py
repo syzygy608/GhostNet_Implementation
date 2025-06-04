@@ -46,22 +46,8 @@ class GhostResNet56(nn.Module):
         x = self.fc(x)
         return x
 
-def init_weights(m):
-    if isinstance(m, nn.Conv2d):
-        nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')
-        if m.bias is not None:
-            nn.init.constant_(m.bias, 0)
-    elif isinstance(m, nn.BatchNorm2d):
-        nn.init.constant_(m.weight, 1)
-        nn.init.constant_(m.bias, 0)
-    elif isinstance(m, nn.Linear):
-        nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')
-        if m.bias is not None:
-            nn.init.constant_(m.bias, 0)
-
 if __name__ == "__main__":
     model = GhostResNet56(num_classes=10)
-    model.apply(init_weights)
     x = torch.randn(2, 3, 32, 32)  # CIFAR-10 輸入，batch_size=2
     output = model(x)
     print(f"Output shape: {output.shape}")  # 應為 [2, 10]

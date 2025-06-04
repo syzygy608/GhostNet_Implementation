@@ -19,7 +19,7 @@ class CIFAR10Dataset(Data.Dataset):
     def download(root):
         torchvision.datasets.CIFAR10(root=root, train=True, download=True)
 
-def get_cifar10_dataloader(root, train=True, batch_size=32, shuffle=True, num_workers=2):
+def get_cifar10_dataloader(root, train=True, batch_size=32, shuffle=True, num_workers=1):
     
     transform = None 
 

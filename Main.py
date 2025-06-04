@@ -1,12 +1,14 @@
 import torch
+import tqdm
+import argparse
+import torch.nn as nn
 import os
 
 from model_training.GhostNet import GhostNet
 from model_training.GhostResNet56 import GhostResNet56
+from model_training.GhostVGG16 import GhostVGG16
 from data_utils import Utils
-import tqdm
-import argparse
-import torch.nn as nn
+
 
 # testing saved model weight
 
@@ -17,8 +19,11 @@ def test_saved_model(model_name):
         model = GhostNet(num_classes=10).to(device)
     elif model_name == "GhostResNet56":
         model = GhostResNet56(num_classes=10).to(device)
+    elif model_name == "GhostVGG16":
+        model = GhostVGG16(num_classes=10).to(device)
     else:
-        raise ValueError(f"Unknown model name: {model_name}. Supported models are 'GhostNet' and 'GhostResNet56'.")
+        raise ValueError(f"Unknown model name: {model_name}. Supported models are 'GhostNet', 'GhostResNet56', and 'GhostVGG16'.")
+    print(f"Testing model: {model_name} on device: {device}")
             
     # Load the saved model weights
     model_path = os.path.join("saved_weight", f"{model_name}_cifar10.pth")
