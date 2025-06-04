@@ -44,7 +44,7 @@ def test_saved_model(model_name):
         for images, labels in tqdm.tqdm(data_loader, desc="Testing"):
             images, labels = images.to(device), labels.to(device)
             outputs = model(images)
-            loss += criterion(outputs, labels).item()
+            loss += criterion(outputs, labels).item() * images.size(0)
             _, predicted = torch.max(outputs.data, 1)
             total += labels.size(0)
             correct += (predicted == labels).sum().item()
