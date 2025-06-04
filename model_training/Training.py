@@ -16,7 +16,10 @@ from model_training.GhostResNet56 import GhostResNet56
 def train_model(model, dataloader, criterion, optimizer, scheduler, device, epochs, name):
     model.train()
     sw = SummaryWriter(log_dir=os.path.join("logs", name + "_cifar10"))
-    best_acc = 0.0
+    best_lose = float('inf')
+    delta = 0.0001
+    patience = 10
+    no_improvement = 0
 
     for epoch in range(epochs):
         running_loss = 0.0
@@ -46,12 +49,17 @@ def train_model(model, dataloader, criterion, optimizer, scheduler, device, epoc
         sw.add_scalar('Loss/epoch', epoch_loss, epoch)
         sw.add_scalar('Accuracy/epoch', epoch_acc, epoch)
 
-        # Save the model if it has the best accuracy so far
-        if epoch_acc > best_acc:
-            best_acc = epoch_acc
+        # Save the model if it has the best loss so far
+        if epoch_loss < best_lose - delta:
+            no_improvement = 0
+            best_lose = epoch_loss
             torch.save(model.state_dict(), os.path.join("saved_weight", f"{name}_cifar10.pth"))
-            print(f"Model saved with accuracy: {best_acc:.2f}%")
-
+            print(f"Model saved with loss: {best_lose:.4f}")
+        else:
+            no_improvement += 1
+            if no_improvement >= patience:
+                print(f"No improvement for {patience} epochs, stopping training.")
+                break
 
         # Step the learning rate scheduler
         scheduler.step()
